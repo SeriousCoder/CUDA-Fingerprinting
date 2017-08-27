@@ -90,6 +90,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CUDAFingerprinting.GPU.Ridg
 		{FF7EFCD3-BE2A-43B4-AF3E-91469400E6A8} = {FF7EFCD3-BE2A-43B4-AF3E-91469400E6A8}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CUDAFingerprinting.GPU.RidgeLine.Tests", "CUDAFingerprinting.GPU.RidgeLine.Tests\CUDAFingerprinting.GPU.RidgeLine.Tests.csproj", "{B11AC320-A4E9-4826-BD88-DD43C7C18A69}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6D6B1835-C0A4-4AF5-8D88-A18DFB2AAC7D} = {6D6B1835-C0A4-4AF5-8D88-A18DFB2AAC7D}
+		{6FD094CC-0F63-47BD-A377-F054AE615517} = {6FD094CC-0F63-47BD-A377-F054AE615517}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -378,6 +384,18 @@ Global
 		{6D6B1835-C0A4-4AF5-8D88-A18DFB2AAC7D}.Release|Win32.Build.0 = Release|Win32
 		{6D6B1835-C0A4-4AF5-8D88-A18DFB2AAC7D}.Release|x64.ActiveCfg = Release|x64
 		{6D6B1835-C0A4-4AF5-8D88-A18DFB2AAC7D}.Release|x64.Build.0 = Release|x64
+		{B11AC320-A4E9-4826-BD88-DD43C7C18A69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B11AC320-A4E9-4826-BD88-DD43C7C18A69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B11AC320-A4E9-4826-BD88-DD43C7C18A69}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{B11AC320-A4E9-4826-BD88-DD43C7C18A69}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{B11AC320-A4E9-4826-BD88-DD43C7C18A69}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{B11AC320-A4E9-4826-BD88-DD43C7C18A69}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B11AC320-A4E9-4826-BD88-DD43C7C18A69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B11AC320-A4E9-4826-BD88-DD43C7C18A69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B11AC320-A4E9-4826-BD88-DD43C7C18A69}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{B11AC320-A4E9-4826-BD88-DD43C7C18A69}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{B11AC320-A4E9-4826-BD88-DD43C7C18A69}.Release|Win32.ActiveCfg = Release|Any CPU
+		{B11AC320-A4E9-4826-BD88-DD43C7C18A69}.Release|x64.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

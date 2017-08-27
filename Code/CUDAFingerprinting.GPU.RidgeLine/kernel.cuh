@@ -6,7 +6,7 @@ extern "C"
 	__declspec(dllexport) int* GetY();
 	__declspec(dllexport) int* GetMType();
 	__declspec(dllexport) float* GetAngle();
-	__declspec(dllexport) bool Start(float* source, int step, int lengthWings, int width, int height);
+	__declspec(dllexport) bool* Start(float* source, int step, int lengthWings, int width, int height);
 }
 
 enum Direction
@@ -168,8 +168,8 @@ struct ListOfMinutiae
 		}
 };
 
-__global__ void FindMinutia(CUDAArray<float> image, CUDAArray<float> orientationField, CUDAArray<bool> visited,
-	CUDAArray<int> countOfMinutiae, CUDAArray<ListOfMinutiae*> minutiaes,
-	const int size, const int step, int colorThreshold);
+//__global__ void FindMinutia(CUDAArray<float> image, CUDAArray<float> orientationField, CUDAArray<bool> visited,
+//	CUDAArray<int> countOfMinutiae, CUDAArray<ListOfMinutiae*> minutiaes,
+//	const int size, const int step, int colorThreshold);
 
 bool Parsing(ListOfMinutiae* minutiaeList);
