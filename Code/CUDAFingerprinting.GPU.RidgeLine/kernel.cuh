@@ -173,3 +173,11 @@ struct ListOfMinutiae
 //	const int size, const int step, int colorThreshold);
 
 bool Parsing(ListOfMinutiae* minutiaeList);
+
+#define cudaCheckError() {\
+	cudaError_t e = cudaGetLastError(); \
+	if (e != cudaSuccess) {\
+		printf("Cuda failure %s:%d: '%s'\n", __FILE__, __LINE__, cudaGetErrorString(e));\
+		exit(0);\
+											}\
+}
