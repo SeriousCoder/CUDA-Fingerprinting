@@ -54,10 +54,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\Release\CUDAFingerprinting.GPU.RidgeLine.dll">
-      <Link>CUDAFingerprinting.GPU.RidgeLine.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <None Include="Resources\test32x32Filter.bmp" />
     <None Include="Resources\res.bmp" />
     <None Include="Resources\4_8.bmp" />
@@ -73,6 +69,12 @@
       <Project>{6fd094cc-0f63-47bd-a377-f054ae615517}</Project>
       <Name>CUDAFingerprinting.Common</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\Release\CUDAFingerprinting.GPU.RidgeLine.dll">
+      <Link>CUDAFingerprinting.GPU.RidgeLine.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

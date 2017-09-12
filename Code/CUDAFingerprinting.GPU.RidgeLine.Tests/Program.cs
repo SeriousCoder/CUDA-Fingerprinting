@@ -18,34 +18,65 @@ namespace CUDAFingerprinting.GPU.RidgeLine.Tests
             Intersection
         }
 
-        [DllImport("CUDAFingerprinting.GPU.RidgeLine.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "Start")]
-        public static extern bool Start(float[] source, int step, int lengthWings, int width, int height);
+        struct Minutiae
+        {
+            public int X;
+            public int Y;
+            public float Angle;
+            public MinutiaTypes MinutiaType;
+        }
 
-        [DllImport("CUDAFingerprinting.GPU.RidgeLine.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "GetX")]
-        public static extern int[] GetX();
-        [DllImport("CUDAFingerprinting.GPU.RidgeLine.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "GetY")]
-        public static extern int[] GetY();
-        [DllImport("CUDAFingerprinting.GPU.RidgeLine.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "GetMType")]
-        public static extern int[] GetMType();
-        [DllImport("CUDAFingerprinting.GPU.RidgeLine.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "GetAngle")]
-        public static extern float[] GetAngle();
+        [DllImport("CUDAFingerprinting.GPU.RidgeLine.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "Start")]
+        public static extern bool Start(IntPtr ptr, float[] source, int step, int lengthWings, int width, int height);
+
+        //[DllImport("CUDAFingerprinting.GPU.RidgeLine.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "GetX")]
+        //public static extern int[] GetX();
+        //[DllImport("CUDAFingerprinting.GPU.RidgeLine.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "GetY")]
+        //public static extern int[] GetY();
+        //[DllImport("CUDAFingerprinting.GPU.RidgeLine.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "GetMType")]
+        //public static extern int[] GetMType();
+        //[DllImport("CUDAFingerprinting.GPU.RidgeLine.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "GetAngle")]
+        //public static extern float[] GetAngle();
 
         static void Main(string[] args)
         {
             var bmp = Resources.SampleFinger4;
             var image = ImageHelper.LoadImage<double>(bmp);
 
-            Console.WriteLine(Start(array2Dto1D(image), 2, 3, image.GetLength(0), image.GetLength(1)));
+            int arraySize = Marshal.SizeOf(typeof(Minutiae));
+            IntPtr minutiaeIntPtr = Marshal.AllocHGlobal(arraySize * image.GetLength(0) * image.GetLength(1));
 
-            var x = GetX();
-            var y = GetY();
-            var angle = GetAngle();
-            var mType = GetMType();
+            Console.WriteLine(@"{0}",Start(minutiaeIntPtr, array2Dto1D(image), 2, 3, image.GetLength(0), image.GetLength(1)));
 
-            for (int i = 0; i < x.Length; i++)
+
+
+            int size = image.GetLength(0) * image.GetLength(1);
+
+            //var x = GetX();
+            //var y = GetY();
+            //var angle = GetAngle();
+            //var mType = GetMType();
+
+            List<Minutia> listOfMinutiaes = new List<Minutia>();
+
+            for (int i = 0; i < size; i++)
             {
-                Console.WriteLine(@"{0} {1} {2} {3}", x[i], y[i], angle[i], mType[i]);
+                IntPtr ptr = new IntPtr(minutiaeIntPtr.ToInt32() + arraySize * i);
+                Minutiae minutiae = (Minutiae) Marshal.PtrToStructure(ptr, typeof(Minutiae));
+
+                if (minutiae.MinutiaType != MinutiaTypes.NotMinutia)
+                {
+                    Minutia foo = new Minutia();
+                    foo.X = minutiae.X;
+                    foo.Y = minutiae.Y;
+                    foo.Angle = minutiae.Angle;
+
+                    listOfMinutiaes.Add(foo);
+                    Console.WriteLine(@"{0} {1} {2} {3}", minutiae.X, minutiae.Y, minutiae.Angle, minutiae.MinutiaType);
+                }
             }
+
+            ImageHelper.MarkMinutiae("..\\..\\rez.bmp", listOfMinutiaes, "res.bmp");
         }
 
         private static int[] array2Dto1D(int[,] source)

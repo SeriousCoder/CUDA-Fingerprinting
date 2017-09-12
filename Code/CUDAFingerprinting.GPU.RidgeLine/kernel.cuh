@@ -1,13 +1,5 @@
 #include "CUDAArray.cuh"
 
-extern "C"
-{
-	__declspec(dllexport) int* GetX();
-	__declspec(dllexport) int* GetY();
-	__declspec(dllexport) int* GetMType();
-	__declspec(dllexport) float* GetAngle();
-	__declspec(dllexport) bool* Start(float* source, int step, int lengthWings, int width, int height);
-}
 
 enum Direction
 {
@@ -35,6 +27,16 @@ struct Minutiae
 	float angle;
 	MinutiaeType type;
 };
+
+
+extern "C"
+{
+	__declspec(dllexport) int* GetX();
+	__declspec(dllexport) int* GetY();
+	__declspec(dllexport) int* GetMType();
+	__declspec(dllexport) float* GetAngle();
+	__declspec(dllexport) bool Start(Minutiae* minutiaes, float* source, int step, int lengthWings, int width, int height);
+}
 
 struct Queue
 {

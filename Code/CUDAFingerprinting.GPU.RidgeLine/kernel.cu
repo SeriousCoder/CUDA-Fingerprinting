@@ -49,11 +49,11 @@ Point NewPoint(int x, int y)
 __device__ void AddMinutiae(CUDAArray<int>* countOfMinutiae, CUDAArray<Minutiae>* minutiaes, Minutiae minutiae, int* indexOfMinutiae)
 {
 	//minutiaes.At(blockIdx.x * gridDim.x + blockIdx.y, 0)->Add(minutiae);
-	//printf("Adding a minutiae\n");
+	//printf("Adding a minutiae woth type %d\n", minutiae.type);
 	minutiaes->SetAt(0, *indexOfMinutiae, minutiae);
 	int past = countOfMinutiae->At(0, blockIdx.x * gridDim.x + blockIdx.y);
 	countOfMinutiae->SetAt(0, blockIdx.x * gridDim.x + blockIdx.y, past + 1);
-	*countOfMinutiae++;
+	*indexOfMinutiae++;
 	//printf("%d %d: Was %d. Must be %d, but in real %d\n", blockIdx.x, blockIdx.y, past, past + 1, countOfMinutiae->At(blockIdx.x * gridDim.x + blockIdx.y, 0));
 }
 
@@ -331,7 +331,7 @@ __global__ void FindMinutia(CUDAArray<float> image, CUDAArray<float> orientation
 
 	//printf("%d %d %d\n", blockIdx.x, blockIdx.y, threadIdx.x);
 
-	//if (blockIdx.x == 11 && blockIdx.y == 7)
+	if (blockIdx.x == 7 && blockIdx.y == 7)
 	for (int i = blockIdx.x * partX; i < (blockIdx.x + 1) * partX; i++)
 		for (int j = blockIdx.y * partY; j < (blockIdx.y + 1) * partY; j++)
 	//for (int i = 0; i < image.Height; i++)
@@ -355,7 +355,7 @@ __global__ void FindMinutia(CUDAArray<float> image, CUDAArray<float> orientation
 				section, &sectionAngle, &centerSection, &flag, size, step, partX, partY, &indexOfMinutiae);
 		}
 
-	printf("%d %d: Lets look i = %d; j = %d \n", blockIdx.x, blockIdx.y, i, j);
+	//printf("%d %d: Lets look i = %d; j = %d \n", blockIdx.x, blockIdx.y, i, j);
 }
 
 ListOfMinutiae* MergeMinutiaePools(ListOfMinutiae** pools)
@@ -386,7 +386,7 @@ int CountOfMinutiaes(int* counts, int length)
 	return count;
 }
 
-bool* Start(float* source, int step, int lengthWings, int width, int height)
+bool Start(Minutiae* minutias, float* source, int step, int lengthWings, int width, int height)
 {
 	int sizeSection = lengthWings * 2 + 1;
 
@@ -418,42 +418,47 @@ bool* Start(float* source, int step, int lengthWings, int width, int height)
 
 	//CountOfMinutiaes(countOfMinutiae.GetData(), gridSize.x * gridSize.y);
 
-	return visited.GetData();
+	//return visited.GetData();
 
 	/*ListOfMinutiae** notProcessedPools = minutiaes.GetData();
 
 	return Parsing(MergeMinutiaePools(notProcessedPools));*/
+
+	minutiaes.GetData(minutias);
+	return true;
 }
 
-int main(int argc, char *argv[])
-{
-	int width;
-	int height;
-	/*if (argc != 2)
-	{
-		printf("Need path to file");
-		return 0;
-	}*/
-	char* filename = "H:\\GitHub\\CUDA-Fingerprinting\\Code\\CUDAFingerprinting.GPU.RidgeLine\\res.bmp";  //Write your way to bmp file
-	int* img = loadBmp(filename, &width, &height);
-	float* source = (float*)malloc(height*width*sizeof(float));
-	for (int i = 0; i < height; i++)
-		for (int j = 0; j < width; j++)
-		{
-			source[i * width + j] = (float)img[i * width + j];
-		}
-
-	bool* res = Start(source, 2, 3, width, height);
-	
-	for (int i = 0; i < height; i++)
-		for (int j = 0; j < width; j++)
-		{
-			img[i * width + j] = res[i * width + j] ? 255 : 0;
-		}
-
-
-
-	saveBmp("..\\rez.bmp", img, width, height);
-
- 	return 0;
-}
+//int main(int argc, char *argv[])
+//{
+//	int width;
+//	int height;
+//	/*if (argc != 2)
+//	{
+//		printf("Need path to file");
+//		return 0;
+//	}*/
+//	char* filename = "H:\\GitHub\\CUDA-Fingerprinting\\Code\\CUDAFingerprinting.GPU.RidgeLine\\res.bmp";  //Write your way to bmp file
+//	int* img = loadBmp(filename, &width, &height);
+//	float* source = (float*)malloc(height*width*sizeof(float));
+//	for (int i = 0; i < height; i++)
+//		for (int j = 0; j < width; j++)
+//		{
+//			source[i * width + j] = (float)img[i * width + j];
+//		}
+//
+//	Minutiae* foo = (Minutiae*)malloc(sizeof(Minutiae) * width * height);
+//
+//	bool res = Start(foo, source, 2, 3, width, height);
+//	
+//	/*for (int i = 0; i < height; i++)
+//		for (int j = 0; j < width; j++)
+//		{
+//			img[i * width + j] = res[i * width + j] ? 255 : 0;
+//		}
+//
+//
+//
+//	saveBmp("..\\rez.bmp", img, width, height);*/
+//
+// 	return 0;
+//}
