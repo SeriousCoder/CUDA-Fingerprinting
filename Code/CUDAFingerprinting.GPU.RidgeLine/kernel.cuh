@@ -20,12 +20,12 @@ struct Point
 	int y;
 };
 
-struct Minutiae
+typedef struct Minutiae
 {
 	int x;
 	int y;
 	float angle;
-	MinutiaeType type;
+	int type;
 };
 
 

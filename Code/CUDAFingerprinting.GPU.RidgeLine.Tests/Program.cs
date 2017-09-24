@@ -19,12 +19,17 @@ namespace CUDAFingerprinting.GPU.RidgeLine.Tests
             Intersection
         }
 
+        [StructLayout(LayoutKind.Sequential)]
         struct Minutiae
         {
+            [MarshalAs(UnmanagedType.I4)]
             public int X;
+            [MarshalAs(UnmanagedType.I4)]
             public int Y;
+            [MarshalAs(UnmanagedType.R4)]
             public float Angle;
-            public MinutiaTypes MinutiaType;
+            [MarshalAs(UnmanagedType.I4)]
+            public int MinutiaType;
         }
 
         //[DllImport("CUDAFingerprinting.GPU.MinutiaeDetectionRL.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "Start")]
@@ -58,7 +63,7 @@ namespace CUDAFingerprinting.GPU.RidgeLine.Tests
 
             PixelwiseOrientationField orientation = new PixelwiseOrientationField(image, 18);
 
-            //outputToFile();
+            outputToFile();
 
             bool res = Start(minutiaeIntPtr, array2Dto1D(image), 2, 3,
                 image.GetLength(1), image.GetLength(0));
@@ -97,17 +102,19 @@ namespace CUDAFingerprinting.GPU.RidgeLine.Tests
                 IntPtr ptr = new IntPtr(minutiaeIntPtr.ToInt32() + minutiaeSize * i);
                 Minutiae minutiae = (Minutiae)Marshal.PtrToStructure(ptr, typeof(Minutiae));
 
-                if (minutiae.MinutiaType != MinutiaTypes.NotMinutia)
+                if (minutiae.MinutiaType == 2)
                 {
                     Minutia foo = new Minutia();
                     foo.X = minutiae.X;
-                    foo.Y = minutiae.Y;
+                    foo.Y = image.GetLength(0) - minutiae.Y + 1;
                     foo.Angle = minutiae.Angle;
 
                     listOfMinutiaes.Add(foo);
                     //Console.WriteLine(@"{0} {1} {2} {3}", minutiae.X, minutiae.Y, minutiae.Angle, minutiae.MinutiaType);
                 }
             }
+
+            Marshal.FreeHGlobal(minutiaeIntPtr);
 
             ImageHelper.MarkMinutiae("..\\..\\rez.bmp", listOfMinutiaes, "res.bmp");
         }
