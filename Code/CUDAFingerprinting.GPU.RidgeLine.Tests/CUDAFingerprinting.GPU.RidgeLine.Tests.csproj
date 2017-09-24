@@ -75,6 +75,9 @@
       <Link>CUDAFingerprinting.GPU.RidgeLine.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\line3.png" />
+    <None Include="Resources\line2.png" />
+    <None Include="Resources\line1.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

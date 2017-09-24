@@ -22,7 +22,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CUDAFingerprinting.GPU.Imag
 		{2AA43362-8E1A-4DBF-9F93-67489055E963} = {2AA43362-8E1A-4DBF-9F93-67489055E963}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CUDAFingerprinting.GPU.Filters", "CUDAFingerprinting.GPU.Filters\CUDAFingerprinting.GPU.Filters.vcxproj", "{86750751-B7A7-4A54-B2A9-313A9C1E2199}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CUDAFingerprinting.GPU.ImageEnhancement", "CUDAFingerprinting.GPU.Filters\CUDAFingerprinting.GPU.Filters.vcxproj", "{86750751-B7A7-4A54-B2A9-313A9C1E2199}"
 	ProjectSection(ProjectDependencies) = postProject
 		{FF7EFCD3-BE2A-43B4-AF3E-91469400E6A8} = {FF7EFCD3-BE2A-43B4-AF3E-91469400E6A8}
 	EndProjectSection
@@ -94,7 +94,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CUDAFingerprinting.GPU.Ridg
 	ProjectSection(ProjectDependencies) = postProject
 		{6D6B1835-C0A4-4AF5-8D88-A18DFB2AAC7D} = {6D6B1835-C0A4-4AF5-8D88-A18DFB2AAC7D}
 		{6FD094CC-0F63-47BD-A377-F054AE615517} = {6FD094CC-0F63-47BD-A377-F054AE615517}
+		{49D766FC-F36B-408D-B97B-32607D4A11A5} = {49D766FC-F36B-408D-B97B-32607D4A11A5}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CUDAFingerprinting.GPU.MinutiaeDetectionRL", "CUDAFingerprinting.GPU.MinutiaeDetectionRL\CUDAFingerprinting.GPU.MinutiaeDetectionRL.vcxproj", "{49D766FC-F36B-408D-B97B-32607D4A11A5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -396,6 +399,20 @@ Global
 		{B11AC320-A4E9-4826-BD88-DD43C7C18A69}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{B11AC320-A4E9-4826-BD88-DD43C7C18A69}.Release|Win32.ActiveCfg = Release|Any CPU
 		{B11AC320-A4E9-4826-BD88-DD43C7C18A69}.Release|x64.ActiveCfg = Release|Any CPU
+		{49D766FC-F36B-408D-B97B-32607D4A11A5}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{49D766FC-F36B-408D-B97B-32607D4A11A5}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{49D766FC-F36B-408D-B97B-32607D4A11A5}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{49D766FC-F36B-408D-B97B-32607D4A11A5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{49D766FC-F36B-408D-B97B-32607D4A11A5}.Debug|Win32.Build.0 = Debug|Win32
+		{49D766FC-F36B-408D-B97B-32607D4A11A5}.Debug|x64.ActiveCfg = Debug|x64
+		{49D766FC-F36B-408D-B97B-32607D4A11A5}.Debug|x64.Build.0 = Debug|x64
+		{49D766FC-F36B-408D-B97B-32607D4A11A5}.Release|Any CPU.ActiveCfg = Release|Win32
+		{49D766FC-F36B-408D-B97B-32607D4A11A5}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{49D766FC-F36B-408D-B97B-32607D4A11A5}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{49D766FC-F36B-408D-B97B-32607D4A11A5}.Release|Win32.ActiveCfg = Release|Win32
+		{49D766FC-F36B-408D-B97B-32607D4A11A5}.Release|Win32.Build.0 = Release|Win32
+		{49D766FC-F36B-408D-B97B-32607D4A11A5}.Release|x64.ActiveCfg = Release|x64
+		{49D766FC-F36B-408D-B97B-32607D4A11A5}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

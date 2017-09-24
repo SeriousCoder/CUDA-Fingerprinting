@@ -31,11 +31,13 @@ struct Minutiae
 
 extern "C"
 {
+	//__declspec(dllexport) bool Start(float* source, float* orientField, int step, int lengthWings, int width, int height);
+	__declspec(dllexport) bool Start(Minutiae* minutias, float* source, int step, int lengthWings, int width, int height);
+	__declspec(dllexport) void outputToFile();
 	__declspec(dllexport) int* GetX();
 	__declspec(dllexport) int* GetY();
 	__declspec(dllexport) int* GetMType();
 	__declspec(dllexport) float* GetAngle();
-	__declspec(dllexport) bool Start(Minutiae* minutiaes, float* source, int step, int lengthWings, int width, int height);
 }
 
 struct Queue
@@ -174,7 +176,7 @@ struct ListOfMinutiae
 //	CUDAArray<int> countOfMinutiae, CUDAArray<ListOfMinutiae*> minutiaes,
 //	const int size, const int step, int colorThreshold);
 
-bool Parsing(ListOfMinutiae* minutiaeList);
+bool Parsing(Minutiae* minutiaeList, int size);
 
 #define cudaCheckError() {\
 	cudaError_t e = cudaGetLastError(); \

@@ -1,5 +1,6 @@
 #include "kernel.cuh"
 #include <stdlib.h>
+#include <iostream>
 
 int* _x;
 int* _y;
@@ -7,29 +8,23 @@ int* _mType;
 float* _angle;
 
 __host__
-bool Parsing(ListOfMinutiae* minutiaeList)
+bool Parsing(Minutiae* minutiaeList, int size)
 {
-	int count = 0;
+	printf("Try to parse\n");
 
-	_x = (int*)malloc(sizeof(int)*count);
-	_y = (int*)malloc(sizeof(int)*count);
-	_mType = (int*)malloc(sizeof(int)*count);
-	_angle = (float*)malloc(sizeof(float)*count);
+	_x = (int*)malloc(sizeof(int)*size);
+	_y = (int*)malloc(sizeof(int)*size);
+	_mType = (int*)malloc(sizeof(int)*size);
+	_angle = (float*)malloc(sizeof(float)*size);
 
 	int i = 0;
 
-	while (minutiaeList->head != NULL)
+	for (int i = 0; i < size; i++)
 	{
-		Minutiae foo = minutiaeList->Pop();
-
-		//if (foo == NULL) return false;
-
-		_x[i] = foo.x;
-		_y[i] = foo.y;
-		_mType[i] = foo.type;
-		_angle[i] = foo.angle;
-
-		i++;
+		_x[i] = minutiaeList[i].x;
+		_y[i] = minutiaeList[i].y;
+		_mType[i] = minutiaeList[i].type;
+		_angle[i] = minutiaeList[i].angle;
 	}
 
 	return true;
