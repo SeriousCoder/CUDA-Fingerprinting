@@ -60,22 +60,22 @@ namespace CUDAFingerprinting.DetectionMinutiae
 			if ((_image[y, x] >= colorThreshold) || _visited[y, x]) return;
 			_visited[y, x] = true;
 
-			Console.Clear();
-			Console.WriteLine(_countTest + ":");
+			//Console.Clear();
+			//Console.WriteLine(_countTest + ":");
 
 			_sectionsAngle = _orientation.GetOrientation(y, x);
 			if (_sectionsAngle < 0) _sectionsAngle += 2 * Math.PI;
 			FollowLine(new Tuple<int, int>(x, y), Directions.Forward);
 
-			//Console.ReadKey();
-			Console.Clear();
-			Console.WriteLine(_countTest + ":");
+			////Console.ReadKey();
+			//Console.Clear();
+			//Console.WriteLine(_countTest + ":");
 
 			_sectionsAngle = _orientation.GetOrientation(y, x) + Math.PI;
 			//if (_sectionsAngle < 0) _sectionsAngle += 2 * Math.PI;
 			FollowLine(new Tuple<int, int>(x, y), Directions.Back);
 
-			//Console.ReadKey();
+			////Console.ReadKey();
 		}
 
 		//Need add calculate angle and remade selection 
@@ -132,7 +132,7 @@ namespace CUDAFingerprinting.DetectionMinutiae
 			}
 
 			angle = _orientation.GetOrientation(y, x);
-			//Console.WriteLine(angle);
+			////Console.WriteLine(angle);
 			angle += (double)_direction * Math.PI;
 			if (angle < 0) angle += 2 * Math.PI;
 
@@ -140,7 +140,7 @@ namespace CUDAFingerprinting.DetectionMinutiae
 			while (angle > 2 * Math.PI) angle -= 2 * Math.PI;
 
 			_sectionsAngle = angle;
-			Console.WriteLine(_sectionsAngle);
+			//Console.WriteLine(_sectionsAngle);
 		}
 
 		private bool OutOfImage(int x, int y)
@@ -325,7 +325,7 @@ namespace CUDAFingerprinting.DetectionMinutiae
 			if (!CheckAndDeleteFalseMinutia(possMinutia, minutiaType))
 			{
 				AddMinutia(possMinutia, minutiaType);
-				MakeTestBmp(x, y);
+				//MakeTestBmp(x, y);
 			} 
 		}
 

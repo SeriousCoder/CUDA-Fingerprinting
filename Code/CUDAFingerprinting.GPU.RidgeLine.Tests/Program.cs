@@ -63,7 +63,7 @@ namespace CUDAFingerprinting.GPU.RidgeLine.Tests
 
             PixelwiseOrientationField orientation = new PixelwiseOrientationField(image, 18);
 
-            outputToFile();
+            //outputToFile();
 
             bool res = Start(minutiaeIntPtr, array2Dto1D(image), 2, 3,
                 image.GetLength(1), image.GetLength(0));
@@ -116,7 +116,7 @@ namespace CUDAFingerprinting.GPU.RidgeLine.Tests
 
             Marshal.FreeHGlobal(minutiaeIntPtr);
 
-            ImageHelper.MarkMinutiae("..\\..\\rez.bmp", listOfMinutiaes, "res.bmp");
+            ImageHelper.MarkMinutiae(bmp, listOfMinutiaes, "res.bmp");
         }
 
         private static float[] array2Dto1D(int[,] source)
@@ -129,7 +129,7 @@ namespace CUDAFingerprinting.GPU.RidgeLine.Tests
                     res[y * source.GetLength(1) + x] = source[y, x];
                     //Console.Write("{0} ", res[y * source.GetLength(1) + x] < 20 ? "*" : "0");
                 }
-                Console.WriteLine();
+                //Console.WriteLine();
             }
             return res;
         }

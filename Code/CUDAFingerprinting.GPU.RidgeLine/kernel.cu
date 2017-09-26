@@ -33,8 +33,8 @@ __device__ void AddMinutiae(CUDAArray<Minutiae>* minutiaes, Minutiae minutiae, i
 
 __device__ bool OutOfImage(CUDAArray<float> image, int x, int y, int partX, int partY)
 {
-	return (x < 0) || (y < 0) || (y >= image.Width) || (x >= image.Height);
-	//return (x < blockIdx.x * partX) || (y < blockIdx.y * partY) || (x >= (blockIdx.x + 1) * partX) || (y >= (blockIdx.y + 1) * partY) || (y >= image.Width) || (x >= image.Height);
+	//return (x < 0) || (y < 0) || (y >= image.Width) || (x >= image.Height);
+	return (x < blockIdx.x * partX) || (y < blockIdx.y * partY) || (x >= (blockIdx.x + 1) * partX) || (y >= (blockIdx.y + 1) * partY) || (y >= image.Width) || (x >= image.Height);
 }
 
 __device__ void NewSection(int x, int y, Direction direction, CUDAArray<float> image, CUDAArray<float> orientationField, 
@@ -292,15 +292,15 @@ __global__ void FindMinutia(CUDAArray<float> image, CUDAArray<float> orientation
 	int partX = 32; //image.Height / gridDim.x;
 	int partY = 32; //image.Width / gridDim.y;
 
-	int indexOfMinutiae = 0; // blockIdx.x * image.Height + blockIdx.y * defaultThreadCount;
+	int indexOfMinutiae = blockIdx.x * image.Height + blockIdx.y * defaultThreadCount;
 
 	//printf("%d %d %d\n", blockIdx.x, blockIdx.y, threadIdx.x);
 
-	//if (blockIdx.x == 7 && blockIdx.y == 7)
-	//for (int i = blockIdx.x * partX; i < (blockIdx.x + 1) * partX; i++)
-	//	for (int j = blockIdx.y * partY; j < (blockIdx.y + 1) * partY; j++)
-	for (int i = 0; i < image.Width; i++)
-		for (int j = 0; j < image.Height; j++)
+	//if (blockIdx.x == 2 && blockIdx.y == 2)
+	for (int i = blockIdx.x * partX; i < (blockIdx.x + 1) * partX; i++)
+		for (int j = blockIdx.y * partY; j < (blockIdx.y + 1) * partY; j++)
+	//for (int i = 0; i < image.Width; i++)
+	//	for (int j = 0; j < image.Height; j++)
 		{
 			if (OutOfImage(image, i, j, partX, partY))
 			{
@@ -322,9 +322,25 @@ __global__ void FindMinutia(CUDAArray<float> image, CUDAArray<float> orientation
 				section, &sectionAngle, &centerSection, &flag, size, step, partX, partY, &indexOfMinutiae);
 		}
 
-	printf("Finded minutiaes: %d\n	", indexOfMinutiae);
+	//printf("Finded minutiaes: %d\n	", indexOfMinutiae);
 
 	//printf("%d %d: Lets look i = %d; j = %d \n", blockIdx.x, blockIdx.y, i, j);
+}
+
+void saveMyBmp(bool* visited, int width, int height)
+{
+	int* img = (int*)malloc(width * height * sizeof(int));
+
+	for (int i = 0; i < height; i++)
+		for (int j = 0; j < width; j++)
+		{
+			if (visited[i * width + j]) img[i * width + j] = 255; else img[i * width + j] = 0;
+		}
+
+	char filename[80];
+	sprintf(filename, "resGPU.bmp");
+
+	saveBmp(filename, img, width, height);
 }
 
 bool Start(Minutiae* minutias, float* source, int step, int lengthWings, int width, int height)
@@ -334,19 +350,32 @@ bool Start(Minutiae* minutias, float* source, int step, int lengthWings, int wid
 	CUDAArray<float> image = CUDAArray<float>(source, width, height);
 
 	dim3 blockSize = 1;
-	dim3 gridSize = 1; // dim3(ceilMod(image.Height, defaultThreadCount), ceilMod(image.Width, defaultThreadCount));
+	dim3 gridSize = dim3(ceilMod(image.Height, defaultThreadCount), ceilMod(image.Width, defaultThreadCount));
 
 	CUDAArray<float> orientationField = CUDAArray<float>(OrientationFieldInPixels(source, width, height), width, height);
 	CUDAArray<bool> visited = CUDAArray<bool>((bool*)calloc(width * height, sizeof(bool)), width, height);
 	CUDAArray<Minutiae> minutiaes = CUDAArray<Minutiae>((Minutiae*)calloc(width * height, sizeof(Minutiae)), width * height, 1);
 
+	cudaEvent_t start, stop;
+	cudaEventCreate(&start);
+	cudaEventCreate(&stop);
+
+	cudaEventRecord(start);
 	FindMinutia << <gridSize, blockSize >> > (image, orientationField, visited, minutiaes, sizeSection, step);
+	cudaEventRecord(stop);
+
 	cudaDeviceSynchronize();
 	cudaError_t e = cudaGetLastError(); 
 	if (e != cudaSuccess) {
 		printf("Cuda failure %s:%d: '%s'\n", __FILE__, __LINE__, cudaGetErrorString(e));
 		exit(0);
 	}
+
+	cudaEventSynchronize(stop);
+	float milliseconds = 0;
+	cudaEventElapsedTime(&milliseconds, start, stop);
+
+	printf("Time: %.2f\n", milliseconds);
 
 	//CountOfMinutiaes(countOfMinutiae.GetData(), gridSize.x * gridSize.y);
 
@@ -357,7 +386,13 @@ bool Start(Minutiae* minutias, float* source, int step, int lengthWings, int wid
 	return Parsing(MergeMinutiaePools(notProcessedPools));*/
 
 	minutiaes.GetData(minutias);
-	return visited.GetData();
+
+	//printf("Starting search a duplications\n");
+	DeleteDuplicate(minutias, height * width);
+
+	//saveMyBmp(visited.GetData(), width, height);
+
+	return true;
 }
 
 void outputToFile()

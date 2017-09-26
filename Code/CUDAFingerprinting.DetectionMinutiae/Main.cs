@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using CUDAFingerprinting.Common;
 
@@ -11,6 +12,9 @@ namespace CUDAFingerprinting.DetectionMinutiae
         {
             var bmp = Resources.SampleFinger4;
             var image = ImageHelper.LoadImage<int>(bmp);
+
+	        var timer = new Stopwatch();
+			timer.Start();
 
             var detectingMinutias = new RidgeOnLine(image, 2, 3);  //(image, step, size_wings)
 
@@ -25,6 +29,10 @@ namespace CUDAFingerprinting.DetectionMinutiae
                 //    MakeBmp(detectingMinutias._visited);
                 //}
             }
+
+			timer.Stop();
+
+			Console.WriteLine("{0}", timer.Elapsed.Milliseconds);
 
             List<Common.Minutia> MinutiaE = new List<Common.Minutia>();  //Create List<EndingLine>
             List<Common.Minutia> MinutiaI = new List<Common.Minutia>();  //Create List<Intersection>

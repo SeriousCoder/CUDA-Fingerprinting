@@ -167,6 +167,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </CudaCompile>
     <CudaCompile Include="newVersion.cu" />
     <CudaCompile Include="outHelper.cu" />
+    <CudaCompile Include="tools.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="kernel.cuh" />
