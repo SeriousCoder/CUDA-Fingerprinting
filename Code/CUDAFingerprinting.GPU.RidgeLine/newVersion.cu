@@ -30,21 +30,24 @@
 //{
 //	minutiaes[*indexOfMinutiae] = minutiae;
 //	(*indexOfMinutiae)++;
-//	//printf("Added new minutia. Type = %d\n", minutiae.type);
+//	printf("Added new minutia. Type = %d\n", minutiae.type);
 //	if (minutiae.type == 1) countOfEndings++;
 //}
 //
 //bool OutOfImage(int x, int y, float* image, int* width, int* height)
 //{
+//	//160 - 192; 320 - 352
 //	return (x < 0) || (y < 0) || (x >= *width) || (y >= *height);
 //}
 //
-//void NewSection(int x, int y, Direction direction, float* image, float* orientField,
+//int NewSection(int x, int y, Direction direction, float* image, float* orientField,
 //	Point* section, float* sectionAngle, int* centerSection, bool* flag,
 //	int sizeOfSection, int* width, int* height)
 //{
-//	//printf("=+=+=+=+=+=+=+=+=+=\n");
-//	//printf("Making new section from point (%d, %d)\n", x, y);
+//	int countOfPixels = 0;
+//
+//	printf("=+=+=+=+=+=+=+=+=+=\n");
+//	printf("Making new section from point (%d, %d)\n", x, y);
 //
 //	for (int i = 0; i < sizeOfSection; i++)
 //	{
@@ -58,10 +61,11 @@
 //	bool rightE = false, leftE = false;
 //
 //	float angle = -orientField[y * (*width) + x];
-//	//printf("Angle in this pixel: %f\n", angle);
+//	printf("Angle in this pixel: %f\n", angle);
 //	angle += (float)M_PI_2;
 //
 //	section[wing] = NewPoint(x, y);
+//	countOfPixels++;
 //
 //	for (int i = 1; i <= wing; i++)
 //	{
@@ -76,6 +80,7 @@
 //		{
 //			section[wing - i] = NewPoint(xs, ys);
 //			rEnd--;
+//			countOfPixels++;
 //		}
 //		else
 //		{
@@ -86,6 +91,7 @@
 //		{
 //			section[wing + i] = NewPoint(xe, ye);
 //			lEnd++;
+//			countOfPixels++;
 //		}
 //		else
 //		{
@@ -98,7 +104,7 @@
 //	x = section[*centerSection].x;
 //	y = section[*centerSection].y;
 //
-//	//printf("New center: (%d, %d)\n", x, y);
+//	printf("New center: (%d, %d)\n", x, y);
 //
 //	angle = -orientField[y * (*width) + x];
 //	angle += (float) direction * M_PI;
@@ -107,14 +113,16 @@
 //	if (abs(*sectionAngle - angle) > 0.2 && abs(*sectionAngle - angle) < 6) angle += M_PI;
 //	while (angle > 2.0 * M_PI) angle -= 2 * M_PI;
 //
-//	//printf("Old angle: %f\nNew angle: %f\n", *sectionAngle, angle);
+//	printf("Old angle: %f\nNew angle: %f\n", *sectionAngle, angle);
 //
 //	*sectionAngle = angle;
 //
-//	//printf("=+=+=+=+=+=+=+=+=+=\n");
+//	printf("=+=+=+=+=+=+=+=+=+=\n");
+//
+//	return countOfPixels;
 //}
 //
-//void MakeStep(int* x, int* y, float* image, float* sectionAngle, Point* section,
+//bool MakeStep(int* x, int* y, float* image, float* sectionAngle, Point* section,
 //	int* sectionCenter, int step, int* width, int* height)
 //{
 //	*x = section[*sectionCenter].x;
@@ -126,11 +134,9 @@
 //	*x = (int)(dx >= 0 ? dx + 0.5 : dx - 0.5);
 //	*y = (int)(dy >= 0 ? dy + 0.5 : dy - 0.5);
 //
-//	if (OutOfImage(*x, *y, image, width, height))
-//	{
-//		*x = -1;
-//		*y = -1;
-//	}
+//	if (OutOfImage(*x, *y, image, width, height)) return true;
+//
+//	return false;
 //}
 //
 //int steps;
@@ -230,6 +236,49 @@
 //	}
 //}
 //
+//void Paint2(float* image, bool* visited, Point* oldSection, float *sectionAngle,
+//	int size, int* width, int* height)
+//{
+//	Point queue[40];
+//
+//	int rPointer = 0, lPointer = 0;
+//
+//	for (int i = 0; i < size; i++)
+//	{
+//		if (oldSection[i].x == -1) continue;
+//
+//		visited[oldSection[i].y * (*width) + oldSection[i].x] = true;
+//		queue[rPointer] = oldSection[i];
+//		rPointer++;
+//	}
+//
+//	while (abs(rPointer - lPointer) > 0)
+//	{
+//		int x = queue[lPointer].x, y = queue[lPointer].y;
+//
+//		Point foo = NewPoint(x, y);
+//		int bar = 0;
+//
+//		MakeStep(&x, &y, image, sectionAngle, &foo, &bar, 1, width, height);
+//
+//		for (int i = -1; i < 2; i++)
+//			for (int j = -1; j < 2; j++)
+//			{
+//				if (OutOfImage(x + i, y + j, image, width, height)) continue;
+//				if (image[(y + j) * (*width) + x + i] < 20 && !visited[(y + j) * (*width) + x + i])
+//				{
+//					visited[(y + j) * (*width) + x + i] = true;
+//					queue[rPointer] = NewPoint(x + i, y + j);
+//					rPointer++;
+//					if (rPointer == 40) rPointer = 0;
+//				}
+//			}
+//
+//		lPointer++;
+//		if (lPointer == 40) lPointer = 0;
+//	}
+//}
+//
 //MinutiaeType CheckStopCriteria(int x, int y, float* image, bool* visited, int* width, int threshold = 20)
 //{
 //	if (visited[y * (*width) + x])
@@ -259,6 +308,8 @@
 //	saveBmp(filename, img, width, height);
 //}
 //
+//int indexOfMinutiae = 0;
+//
 //void saveMyBmp(bool* visited, int* index, int width, int height)
 //{
 //	int* img = (int*)malloc(width * height * sizeof(int));
@@ -270,7 +321,7 @@
 //		}
 //
 //	char filename[80];
-//	sprintf(filename, "res%d.bmp", *index);
+//	sprintf(filename, "res%d-%d.bmp", indexOfMinutiae, *index);
 //
 //	saveBmp(filename, img, width, height);
 //}
@@ -281,38 +332,47 @@
 //	int* centerSection, bool* flag, int* sizeOfSection, int* step, int* width, 
 //	int* height, int* indexOfMinutiae)
 //{
-//	NewSection(x, y, direction, image, orientField, section,
+//	int pixelsInSection = NewSection(x, y, direction, image, orientField, section,
 //		sectionAngle, centerSection, flag, *sizeOfSection, width, height);
-//	if (section[*centerSection].x == -1) return;
+//	if (pixelsInSection == 1) return;
 //
 //	MinutiaeType type; steps = 0;
 //	//int x, y;
 //
 //	Point* oldSection = new Point[*sizeOfSection];
+//	bool outOfImage = false;
 //
 //	do
 //	{
-//		//printf("First/last section: \n");
+//		printf("First/last section: \n");
 //		for (int i = 0; i < *sizeOfSection; i++)
 //		{
 //			oldSection[i] = section[i];
-//			//printf("(%d, %d) ", oldSection[i].x, oldSection[i].y);
+//			printf("(%d, %d) ", oldSection[i].x, oldSection[i].y);
 //		}
 //
-//		//printf("\n");
+//		printf("\n");
 //
-//		MakeStep(&x, &y, image, sectionAngle, section, centerSection,
-//			*step, width, height); 
+//		outOfImage = MakeStep(&x, &y, image, sectionAngle, section, centerSection,
+//			*step, width, height);
 //
-//		//printf("Step complited. New point: (%d, %d)\n", x, y);
+//		if (outOfImage)
+//		{
+//			Paint2(image, visited, oldSection, sectionAngle, *sizeOfSection, width, height);
+//			return;
+//		}
 //
-//		if (x == -1) return;
+//		printf("Step complited. New point: (%d, %d)\n", x, y);
+//
+//		type = CheckStopCriteria(x, y, image, visited, width);
 //
 //		NewSection(x, y, direction, image, orientField, section,
 //			sectionAngle, centerSection, flag, *sizeOfSection, width, height);
-//		if (section[*centerSection].x == -1) return;
-//
-//		type = CheckStopCriteria(x, y, image, visited, width);
+//		if (section[*centerSection].x == -1)
+//		{
+//			Paint2(image, visited, oldSection, sectionAngle, *sizeOfSection, width, height);
+//			return;
+//		}
 //
 //		Paint(image, visited, oldSection, section, *sizeOfSection, 
 //			width, height);
@@ -341,8 +401,9 @@
 //	int centerSection;
 //	bool flag = false;
 //
-//	int indexOfMinutiae = 0;
+//	int test = 0;
 //
+//	//160 - 192; 320 - 352
 //	for (int i = 0; i < *width; i++)
 //		for (int j = 0; j < *height; j++)
 //		{
@@ -350,10 +411,10 @@
 //			if ((image[j * (*width) + i] >= colorThreshold) || (visited[j * (*width) + i]))
 //				continue;
 //
-//			/*printf("================================================================\n");
+//			printf("================================================================\n");
 //			printf("Starting point: (%d, %d)  //color = %f\n", i, j, image[j * (*width) + i]);
 //			printf("     ***** Minutiae #%d *****     \n", indexOfMinutiae);
-//			printf("Forward....\n");*/
+//			printf("Forward....\n");
 //
 //			sectionAngle = -orientField[j * (*width) + i];
 //			if (sectionAngle < 0) sectionAngle += 2.0 * M_PI;
@@ -363,9 +424,9 @@
 //
 //			flag = false;
 //
-//			/*printf("-----------------------------\n");
+//			printf("-----------------------------\n");
 //			printf("     ***** Minutiae #%d *****     \n", indexOfMinutiae);
-//			printf("Back....\n");*/
+//			printf("Back....\n");
 //			sectionAngle = -orientField[j * (*width) + i] + M_PI;
 //			//if (sectionAngle > 2.0 * M_PI) sectionAngle -= M_PI;
 //			FollowLine(i, j, Back, image, orientField, visited, minutiaes,
@@ -373,13 +434,13 @@
 //				&step, width, height, &indexOfMinutiae);
 //		}
 //
-//	//printf("Finded minutiaes: %d\n", indexOfMinutiae);
+//	printf("Finded minutiaes: %d\n", indexOfMinutiae);
 //}
 //
 //bool Start(Minutiae* minutiaeOut, float* source, int step, int lengthWings, int width, int height)
 //{
 //	/*DEBUG*/
-//	//freopen("OUTPUT.log", "w", stdout);
+//	freopen("OUTPUT.log", "w", stdout);
 //
 //	int time = clock();
 //
@@ -434,7 +495,7 @@
 ////	for (int i = 0; i < height; i++)
 ////		for (int j = 0; j < width; j++)
 ////		{
-////			source[i * width + j] = (float)img[i * width + j];
+////			source[(height - i - 1) * width + j] = (float)img[i * width + j];
 ////		}
 ////
 ////	//Minutiae* foo = (Minutiae*)malloc(sizeof(Minutiae) * width * height);

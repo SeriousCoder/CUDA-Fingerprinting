@@ -79,8 +79,10 @@ namespace CUDAFingerprinting.DetectionMinutiae
 		}
 
 		//Need add calculate angle and remade selection 
-		private void NewSection(Tuple<int, int> point)
+		private int NewSection(Tuple<int, int> point)
 		{
+			int countOfPixels = 1;
+
 			for (var index = 0; index < _section.Length; index++)
 				_section[index] = new Tuple<int, int>(-1, -1);
 
@@ -109,6 +111,7 @@ namespace CUDAFingerprinting.DetectionMinutiae
 				{
 					_section[_lengthWings - i] = new Tuple<int, int>(xs, ys);
 					rEnd--;
+					countOfPixels++;
 				}
 				else
 				{
@@ -119,6 +122,7 @@ namespace CUDAFingerprinting.DetectionMinutiae
 				{
 					_section[_lengthWings + i] = new Tuple<int, int>(xe, ye);
 					lEnd++;
+					countOfPixels++;
 				}
 				else
 				{
@@ -141,6 +145,8 @@ namespace CUDAFingerprinting.DetectionMinutiae
 
 			_sectionsAngle = angle;
 			//Console.WriteLine(_sectionsAngle);
+
+			return countOfPixels;
 		}
 
 		private bool OutOfImage(int x, int y)
@@ -288,8 +294,8 @@ namespace CUDAFingerprinting.DetectionMinutiae
 		{
 			_direction = direction;
 
-			NewSection(point);
-			if (_section[_sectionsCenter].Item1 == -1) return;
+			int countOfPixels = NewSection(point);
+			if (countOfPixels < 3) return;
 
 			MinutiaTypes minutiaType;
 			int x, y;

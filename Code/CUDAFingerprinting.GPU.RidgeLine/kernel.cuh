@@ -1,6 +1,8 @@
 #include "CUDAArray.cuh"
 
 #define min(a,b) (((a)<(b))?(a):(b))
+#define M_PI 3.14159265358979323846
+#define Pi4 (M_PI / 4)
 
 enum Direction
 {
@@ -47,7 +49,7 @@ extern "C"
 
 bool Parsing(Minutiae* minutiaeList, int size);
 
-void DeleteDuplicate(Minutiae* minutiaes, int size = 300, int delta = 5);
+void DeleteDuplicate(Minutiae* minutiaes, int size = 300, float deltaXY = 5.0);
 
 #define cudaCheckError() {\
 	cudaError_t e = cudaGetLastError(); \

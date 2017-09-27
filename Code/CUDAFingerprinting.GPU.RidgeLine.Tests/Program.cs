@@ -55,8 +55,11 @@ namespace CUDAFingerprinting.GPU.RidgeLine.Tests
 
         static void Main(string[] args)
         {
-            var bmp = Resources.SampleFinger4;
+            var bmp = Resources.RawFinger;
             int[,] image = ImageHelper.LoadImage<int>(bmp);
+            double[,] source = Normalization.DoNormalization(convertToDoubles(image), 100, 1000);
+
+            ImageHelper.SaveArray(source, "norm.bmp", true);
 
             int minutiaeSize = Marshal.SizeOf(typeof(Minutiae));
             IntPtr minutiaeIntPtr = Marshal.AllocHGlobal(minutiaeSize * image.GetLength(0) * image.GetLength(1));
@@ -65,7 +68,7 @@ namespace CUDAFingerprinting.GPU.RidgeLine.Tests
 
             //outputToFile();
 
-            bool res = Start(minutiaeIntPtr, array2Dto1D(image), 2, 3,
+            bool res = Start(minutiaeIntPtr, array2Dto1D(source), 4, 3,
                 image.GetLength(1), image.GetLength(0));
 
             //if (!res) Console.WriteLine("Parsing down");
@@ -102,7 +105,7 @@ namespace CUDAFingerprinting.GPU.RidgeLine.Tests
                 IntPtr ptr = new IntPtr(minutiaeIntPtr.ToInt32() + minutiaeSize * i);
                 Minutiae minutiae = (Minutiae)Marshal.PtrToStructure(ptr, typeof(Minutiae));
 
-                if (minutiae.MinutiaType == 2)
+                if (minutiae.MinutiaType == 1)
                 {
                     Minutia foo = new Minutia();
                     foo.X = minutiae.X;
@@ -154,6 +157,21 @@ namespace CUDAFingerprinting.GPU.RidgeLine.Tests
                 }
             }
             return res;
+        }
+
+        private static double[,] convertToDoubles(int[,] source)
+        {
+            double[,] newDoubles = new double[source.GetLength(0), source.GetLength(1)];
+
+            for (int y = 0; y < source.GetLength(0); y++)
+            {
+                for (int x = 0; x < source.GetLength(1); x++)
+                {
+                    newDoubles[y, x] = source[y, x];
+                }
+            }
+
+            return newDoubles;
         }
     }
 }

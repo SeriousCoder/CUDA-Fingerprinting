@@ -13,9 +13,6 @@
 #include "OrientationField.cu"
 #include "Convolution.cu"
 
-#define M_PI 3.14159265358979323846
-#define Pi4 (M_PI / 4)
-
 __device__ __host__
 Point NewPoint(int x, int y)
 {
@@ -34,12 +31,28 @@ __device__ void AddMinutiae(CUDAArray<Minutiae>* minutiaes, Minutiae minutiae, i
 __device__ bool OutOfImage(CUDAArray<float> image, int x, int y, int partX, int partY)
 {
 	//return (x < 0) || (y < 0) || (y >= image.Width) || (x >= image.Height);
-	return (x < blockIdx.x * partX) || (y < blockIdx.y * partY) || (x >= (blockIdx.x + 1) * partX) || (y >= (blockIdx.y + 1) * partY) || (y >= image.Width) || (x >= image.Height);
+	return (x < blockIdx.x * partX) || (y < blockIdx.y * partY) || (x >= (blockIdx.x + 1) * partX) || (y >= (blockIdx.y + 1) * partY) || (y >= image.Height) || (x >= image.Width);
 }
 
-__device__ void NewSection(int x, int y, Direction direction, CUDAArray<float> image, CUDAArray<float> orientationField, 
+__device__
+bool OutOfBlock(CUDAArray<float> image, int x, int y, float angle, int partX, int partY)
+{
+	if ((x < blockIdx.x * partX) || (y < blockIdx.y * partY) || (x >= (blockIdx.x + 1) * partX) || (y >= (blockIdx.y + 1) * partY) || (y >= image.Width) || (x >= image.Height))
+	{
+		Minutiae newMinutiae;
+		newMinutiae.x = x;
+		newMinutiae.y = y;
+		newMinutiae.angle = angle;
+		newMinutiae.type = LineEnding;
+
+		
+	}
+}
+
+__device__ int NewSection(int x, int y, Direction direction, CUDAArray<float> image, CUDAArray<float> orientationField, 
 	Point* section, float* sectionAngle, int* centerSection, bool* flag, int size, int partX, int partY)
 {
+	int countOfPixels = 1;
 	int lengthWings = size / 2;
 
 	for (int i = 0; i < size; i++)
@@ -70,6 +83,7 @@ __device__ void NewSection(int x, int y, Direction direction, CUDAArray<float> i
 		{
 			section[lengthWings - i] = NewPoint(xs, ys);
 			rEnd--;
+			countOfPixels++;
 		}
 		else
 		{
@@ -80,6 +94,7 @@ __device__ void NewSection(int x, int y, Direction direction, CUDAArray<float> i
 		{
 			section[lengthWings + i] = NewPoint(xe, ye);
 			lEnd++;
+			countOfPixels++;
 		}
 		else
 		{
@@ -100,6 +115,8 @@ __device__ void NewSection(int x, int y, Direction direction, CUDAArray<float> i
 	while (angle > 2.0 * M_PI) angle -= 2 * M_PI;
 
 	*sectionAngle = angle;
+
+	return countOfPixels;
 }
 
 
@@ -109,7 +126,7 @@ __device__ bool CheckAndDeleteFalseMinutia(Minutiae minutia)
 	return false;
 }
 
-__device__ void MakeStep(int* x, int* y, CUDAArray<float> image, Point* section, int* centerSection, float* sectionAngle, int step, int partX, int partY)
+__device__ bool MakeStep(int* x, int* y, CUDAArray<float> image, Point* section, int* centerSection, float* sectionAngle, int step, int partX, int partY)
 {
 	*x = section[*centerSection].x;
 	*y = section[*centerSection].y;
@@ -120,11 +137,9 @@ __device__ void MakeStep(int* x, int* y, CUDAArray<float> image, Point* section,
 	*x = (int)(dx >= 0 ? dx + 0.5 : dx - 0.5);
 	*y = (int)(dy >= 0 ? dy + 0.5 : dy - 0.5);
 
-	if (OutOfImage(image, *x, *y, partX, partY))
-	{
-		*x = -1;
-		*y = -1;
-	}
+	if (OutOfImage(image, *x, *y, partX, partY)) return true;
+
+	return false;
 }
 
 __device__ MinutiaeType CheckStopCriteria(int x, int y, CUDAArray<float> image, CUDAArray<bool> visited, int threshold = 20)
@@ -233,17 +248,59 @@ __device__ void Paint(CUDAArray<float> image, CUDAArray<bool> visited, Point* ol
 	}
 }
 
+__device__
+void Paint2(CUDAArray<float> image, CUDAArray<bool> visited, Point* oldSection, float* sectionAngle, int size, int partX, int partY)
+{
+	Point queue[40];
+
+	int rPointer = 0, lPointer = 0;
+
+	for (int i = 0; i < size; i++)
+	{
+		visited.SetAt(oldSection[i].y, oldSection[i].x, true);
+		queue[rPointer] = oldSection[i];
+		rPointer++;
+	}
+
+	while (abs(rPointer - lPointer) > 0)
+	{
+		int x = queue[lPointer].x, y = queue[lPointer].y;
+
+		Point foo = NewPoint(x, y);
+		int bar = 0;
+
+		MakeStep(&x, &y, image, &foo, &bar, sectionAngle, 1, partX, partY);
+
+		for (int i = -1; i < 2; i++)
+			for (int j = -1; j < 2; j++)
+			{
+				if (OutOfImage(image, x + i, y + j, partX, partY)) continue;
+				if (image.At(y + j, x + i) < 20 && !visited.At(y + j, x + i))
+				{
+					visited.SetAt(y + j, x + i, true);
+					queue[rPointer] = NewPoint(x + i, y + j);
+					rPointer++;
+					if (rPointer == 40) rPointer = 0;
+				}
+			}
+
+		lPointer++;
+		if (lPointer == 40) lPointer = 0;
+	}
+}
+
 __device__ void FollowLine(int x, int y, Direction direction, CUDAArray<float> image, CUDAArray<float> orientationField,
 	CUDAArray<bool> visited, CUDAArray<Minutiae> minutiaes,	Point* section, float* sectionAngle, 
 	int* centerSection, bool* flag, int size, int step, int partX, int partY, int* indexOfMinutiae)
 {
-	NewSection(x, y, direction, image, orientationField, section, sectionAngle, 
+	int countOfPixels = NewSection(x, y, direction, image, orientationField, section, sectionAngle, 
 		centerSection, flag, size, partX, partY);
-	if (section[*centerSection].x == -1) return;
+	if (countOfPixels < 3) return;
 
 	MinutiaeType type;
 
 	Point* oldSection = new Point[size];
+	bool outOfBlock = false;
 
 	do
 	{		
@@ -251,14 +308,18 @@ __device__ void FollowLine(int x, int y, Direction direction, CUDAArray<float> i
 			oldSection[i] = section[i];
 		}
 
-		MakeStep(&x, &y, image, section, centerSection, sectionAngle, step, partX, partY);
+		outOfBlock = MakeStep(&x, &y, image, section, centerSection, sectionAngle, step, partX, partY);
 		
-		if (x == -1) return;
+		if (outOfBlock)
+		{
+			Paint2(image, visited, oldSection, sectionAngle, size, partX, partY);
+			return;
+		}
+
+		type = CheckStopCriteria(x, y, image, visited);
 
 		NewSection(x, y, direction, image, orientationField, section, sectionAngle, centerSection, flag, size, partX, partY);
 		if (section[*centerSection].x == -1) return;
-
-		type = CheckStopCriteria(x, y, image, visited);
 
 		Paint(image, visited, oldSection, section, size, partX, partY);
 	} while (type == NotMinutiae);
@@ -269,16 +330,7 @@ __device__ void FollowLine(int x, int y, Direction direction, CUDAArray<float> i
 	possMinutiae.angle = *sectionAngle;
 	possMinutiae.type = type;
 
-	//printf("Minutia. x = %d y = %d type = %d\n", possMinutiae.x, possMinutiae.y, possMinutiae.type);
-
-	//if (IsDuplicate(possMinutiae)) return;
-
-	if (!CheckAndDeleteFalseMinutia(possMinutiae))
-	{
-		//printf("Minutia. x = %d y = %d type = %d\n", possMinutiae.x, possMinutiae.y, possMinutiae.type);
-		AddMinutiae(&minutiaes, possMinutiae, indexOfMinutiae);
-		//printf("%d %d: minutiae detected. x = %d; y = %d; type = %d\n", blockIdx.x, blockIdx.y, possMinutiae.x, possMinutiae.y, possMinutiae.type);
-	}
+	AddMinutiae(&minutiaes, possMinutiae, indexOfMinutiae);
 }
 
 __global__ void FindMinutia(CUDAArray<float> image, CUDAArray<float> orientationField, CUDAArray<bool> visited,
@@ -296,7 +348,7 @@ __global__ void FindMinutia(CUDAArray<float> image, CUDAArray<float> orientation
 
 	//printf("%d %d %d\n", blockIdx.x, blockIdx.y, threadIdx.x);
 
-	//if (blockIdx.x == 2 && blockIdx.y == 2)
+	//if (blockIdx.x == 5 && blockIdx.y == 10)
 	for (int i = blockIdx.x * partX; i < (blockIdx.x + 1) * partX; i++)
 		for (int j = blockIdx.y * partY; j < (blockIdx.y + 1) * partY; j++)
 	//for (int i = 0; i < image.Width; i++)
@@ -350,7 +402,9 @@ bool Start(Minutiae* minutias, float* source, int step, int lengthWings, int wid
 	CUDAArray<float> image = CUDAArray<float>(source, width, height);
 
 	dim3 blockSize = 1;
-	dim3 gridSize = dim3(ceilMod(image.Height, defaultThreadCount), ceilMod(image.Width, defaultThreadCount));
+	dim3 gridSize = dim3(ceilMod(image.Width, defaultThreadCount), ceilMod(image.Height, defaultThreadCount));
+
+	printf("GridDim: %d %d\n", gridSize.x, gridSize.y);
 
 	CUDAArray<float> orientationField = CUDAArray<float>(OrientationFieldInPixels(source, width, height), width, height);
 	CUDAArray<bool> visited = CUDAArray<bool>((bool*)calloc(width * height, sizeof(bool)), width, height);
@@ -368,7 +422,7 @@ bool Start(Minutiae* minutias, float* source, int step, int lengthWings, int wid
 	cudaError_t e = cudaGetLastError(); 
 	if (e != cudaSuccess) {
 		printf("Cuda failure %s:%d: '%s'\n", __FILE__, __LINE__, cudaGetErrorString(e));
-		exit(0);
+		//exit(0);
 	}
 
 	cudaEventSynchronize(stop);

@@ -7,7 +7,7 @@
 void Sort(Minutiae* minutiaes, int size);
 void merge(Minutiae* minutiaes, int left, int mid, int right);
 
-void DeleteDuplicate(Minutiae* minutiaes, int size, int delta)
+void DeleteDuplicate(Minutiae* minutiaes, int size, float delta)
 {
 	//printf("Starting search a duplications\n");
 	Sort(minutiaes, size);
@@ -18,10 +18,18 @@ void DeleteDuplicate(Minutiae* minutiaes, int size, int delta)
 
 		for (int j = 0; j < i; j++)
 		{
-			if (minutiaes[i].type == minutiaes[j].type)
+			if (minutiaes[i].type == minutiaes[j].type && minutiaes[j].type == LineEnding)
 				if (sqrt(pow((float)minutiaes[i].x - minutiaes[j].x, 2) +
 					pow((float)minutiaes[i].y - minutiaes[j].y, 2)) < delta)
 				{
+					minutiaes[i].type = 0;
+					break;
+				}
+			if (minutiaes[i].type == minutiaes[j].type && minutiaes[j].type == Intersection)
+				if (sqrt(pow((float)minutiaes[i].x - minutiaes[j].x, 2) +
+					pow((float)minutiaes[i].y - minutiaes[j].y, 2)) < delta)
+				{
+					minutiaes[j].type = 0;
 					minutiaes[i].type = 0;
 					break;
 				}

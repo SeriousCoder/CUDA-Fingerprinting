@@ -63,16 +63,6 @@ namespace CUDAFingerprinting.GPU.RidgeLine.Tests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap _4_8 {
-            get {
-                object obj = ResourceManager.GetObject("_4_8", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap line1 {
             get {
                 object obj = ResourceManager.GetObject("line1", resourceCulture);
@@ -96,6 +86,16 @@ namespace CUDAFingerprinting.GPU.RidgeLine.Tests.Properties {
         internal static System.Drawing.Bitmap line3 {
             get {
                 object obj = ResourceManager.GetObject("line3", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap RawFinger {
+            get {
+                object obj = ResourceManager.GetObject("RawFinger", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
