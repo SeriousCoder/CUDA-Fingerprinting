@@ -54,8 +54,8 @@ namespace CUDAFingerprinting.DetectionMinutiae
             var bmpVis = new Bitmap(MakeBmp(visitedMap));
             bmpVis.Save("Vis.bmp");
 
-            ImageHelper.MarkMinutiae("Vis.bmp", MinutiaE, "withMinutiaE.bmp");
-			ImageHelper.MarkMinutiae("Vis.bmp", MinutiaI, "withMinutiaI.bmp");
+            ImageHelper.MarkMinutiae(bmp, MinutiaE, "withMinutiaE.bmp");
+			ImageHelper.MarkMinutiae(bmp, MinutiaI, "withMinutiaI.bmp");
 			Console.ReadKey();
         }
 

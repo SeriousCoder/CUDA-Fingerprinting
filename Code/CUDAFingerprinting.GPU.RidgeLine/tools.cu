@@ -34,7 +34,7 @@ void DeleteDuplicate(Minutiae* minutiaes, int size, float delta)
 					break;
 				}
 		}
-	}
+	} 
 }
 
 void Sort(Minutiae* minutiaes, int size)

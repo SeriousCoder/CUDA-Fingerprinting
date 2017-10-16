@@ -55,11 +55,8 @@ namespace CUDAFingerprinting.GPU.RidgeLine.Tests
 
         static void Main(string[] args)
         {
-            var bmp = Resources.RawFinger;
+            var bmp = Resources.SampleFinger4;
             int[,] image = ImageHelper.LoadImage<int>(bmp);
-            double[,] source = Normalization.DoNormalization(convertToDoubles(image), 100, 1000);
-
-            ImageHelper.SaveArray(source, "norm.bmp", true);
 
             int minutiaeSize = Marshal.SizeOf(typeof(Minutiae));
             IntPtr minutiaeIntPtr = Marshal.AllocHGlobal(minutiaeSize * image.GetLength(0) * image.GetLength(1));
@@ -68,7 +65,7 @@ namespace CUDAFingerprinting.GPU.RidgeLine.Tests
 
             //outputToFile();
 
-            bool res = Start(minutiaeIntPtr, array2Dto1D(source), 4, 3,
+            bool res = Start(minutiaeIntPtr, array2Dto1D(image), 4, 3,
                 image.GetLength(1), image.GetLength(0));
 
             //if (!res) Console.WriteLine("Parsing down");
